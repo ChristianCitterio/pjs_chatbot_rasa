@@ -1,0 +1,117 @@
+version: "3.1"
+
+nlu:
+- regex: address
+  examples: |
+  - ([A-Za-z]+ \d+)\, (\d{2,}\-?\d+)\, ([A-Z-a-z]+)
+  - ([A-Za-z]+ \d+)\, (\d{2,}\-?\d+)
+  - ([A-Za-z]+ \d+)\, ([A-Z-a-z]+)
+
+- lookup: days
+  examples: |
+  - monday
+  - tuesday
+  - wednesday
+  - thursday
+  - friday
+  - saturday
+  - sunday
+
+- lookup: time
+  examples: |
+  - today
+  - now
+  - tomorrow
+
+- intent: greet
+  examples: |
+    - hey
+    - hello
+    - hi
+    - hello there
+    - good morning
+    - good evening
+    - moin
+    - hey there
+    - let's go
+    - hey dude
+    - goodmorning
+    - goodevening
+    - good afternoon
+
+- intent: goodbye
+  examples: |
+    - cu
+    - good by
+    - cee you later
+    - good night
+    - bye
+    - goodbye
+    - have a nice day
+    - see you around
+    - bye bye
+    - see you later
+
+- intent: confirm
+  examples: |
+    - yes
+    - y
+    - of course
+    - correct
+    - yes, it is correct
+
+- intent: deny
+  examples: |
+    - no
+    - n
+    - not really
+    - not correct
+    - incorrect
+    - nay
+
+- intent: order_food
+  examples: |
+  - i would like to order
+  - I would have
+  - i get a
+  - and a
+  - we would like to order some
+  - i will have myself a 
+
+- intent: get_menu
+  examples: |
+  - could I see the menu?
+  - show me the menu
+  - menu
+  - can i see the menu please
+  - menu please
+  - please show the menu
+
+- intent: get_open_hours
+  examples: |
+  - in wich hours are you open
+  - when are you open on [monday](days)
+  - are you open on [tuesday](days)
+  - will you be open on [wednesday](days)
+  - can i get your opening times?
+  - are you open [now](times)?
+  - will you be open [tomorrow](times)
+  - r u open?
+  - when you are open ? 
+  - are ou open?
+  - are you open [today](times)?
+
+- intent: give_address
+  examples: |
+  - [charda 11111, Milano](address)
+  - [old road 13, 20-222](address)
+  - [calle viecha 13, 2000-222, Lisboa](address)
+  - my addres is [charda 11111, Porto](address)
+  - my addres is [old road 13, 20-222](address)
+  - my addres is [av. dupont 13, 20-002, Paris](address)
+  - my adderss: [makowa 22, 23-200](address)
+  - my adderss: [str. Hauptbahnoff 22, Berlin](address)
+  - my adderss: [oslavia 13, 28051, Lissone](address)
+  - i am in [ul. makowa 22, 23-200](address)
+  - i am in [dortus 33, 1223, Amsterdam](address)
+  - i am in [Viale Rune 33, ROMA](address)
