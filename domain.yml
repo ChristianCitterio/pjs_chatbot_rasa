@@ -1,26 +1,128 @@
 version: "3.1"
 
+entities:
+  - food
+  - times
+  - days
+  - address
+  - confirm_deny
+  - order_confirmed
+  - address_confirmed
+  - delivery_home
 intents:
+  - greet
+  - goodbye
+  - conf_deny
+  - order_food
+  - get_menu
+  - get_open_hours
+  - give_address
+slots:
+  food_items:
+    type: list
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: food
+        intent: order_food
+  times:
+    type: text
+    mappings:
+      - type: from_entity
+        entity: times
+  days:
+    type: text
+    mappings:
+      - type: from_entity
+        entity: days
+  address:
+    type: text
+    mappings:
+      - type: from_entity
+        entity: address
+  final_price:
+    type: text
+    mappings:
+      - type: custom
+        action: action_save_order
+  when_is_ready:
+    type: text
+    mappings:
+      - type: custom
+        action: action_save_order
+  order_confirmed:
+    type: bool
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: order_confirmed
+  address_confirmed:
+    type: bool
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: address_confirmed
+  delivery_home:
+    type: bool
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: delivery_home
+forms:
+  order_form:
+    required_slots:
+      - food_items
 
 responses:
   utter_greet:
-    - text: "Hey! How are you?"
-
-  utter_cheer_up:
-    - text: "Here is something to cheer you up:"
-      image: "https://i.imgur.com/nGF1K8f.jpg"
-
-  utter_did_that_help:
-    - text: "Did that help you?"
-
-  utter_happy:
-    - text: "Great, carry on!"
+    - text: "Hello! How can I help you?"
+    - text: "Hello! What can I do for you?"
 
   utter_goodbye:
-    - text: "Bye"
+    - text: "Thank you, see you again!"
+    - text: "Thank you, have a nice day!"
 
-  utter_iamabot:
-    - text: "I am a bot, powered by Rasa."
+  utter_question_address:
+    - text: "Please give me the address for the delivery."
+
+  utter_question_delivery:
+    - text: "Do you want us to deliver your order at home?"
+      buttons:
+        - title: "Yes"
+          payload: '/conf_deny{{"delivery_home": true}}'
+        - title: "No"
+          payload: '/conf_deny{{"delivery_home": false}}'
+
+  utter_confirm_address:
+    - text: "{address} was given, is this the correct address?"
+      buttons:
+        - title: "Yes"
+          payload: '/conf_deny{{"address_confirmed": true}}'
+        - title: "No"
+          payload: '/conf_deny{{"address_confirmed": false}}'
+
+  utter_confirm_order:
+    - text: "confirm the order?"
+      buttons:
+        - title: "Yes"
+          payload: '/conf_deny{{"order_confirmed": true}}'
+        - title: "No"
+          payload: '/conf_deny{{"order_confirmed": false}}'
+
+  utter_saving_address:
+    - text: "Saving the address for delivery..."
+
+  utter_saving_order:
+    - text: "Adding items to the order..."
+
+  utter_ask_to_do:
+    - text: "Can I do something else for you?"
+
+actions:
+  - action_return_menu
+  - action_return_week_hours
+  - action_return_order_summary
+  - action_save_order
 
 session_config:
   session_expiration_time: 60

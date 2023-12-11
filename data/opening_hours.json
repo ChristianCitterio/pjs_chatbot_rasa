@@ -1,0 +1,9 @@
+{
+    "Monday": {"open":8,"close":20 },
+    "Tuesday": {"open":8,"close":20 },
+    "Wednesday": {"open":10,"close":16 },
+    "Thursday": {"open":8,"close":20 },
+    "Friday": {"open":8,"close":20 },
+    "Saturday": {"open":10,"close":16 },
+    "Sunday": {"open":0,"close":0 }
+}  

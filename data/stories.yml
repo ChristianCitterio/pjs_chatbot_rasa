@@ -1,30 +1,129 @@
 version: "3.1"
 
 stories:
+  - story: say hello
+    steps:
+      - intent: greet
+      - action: utter_greet
+      - checkpoint: greet_checkpoint
 
-- story: happy path
-  steps:
-  - intent: greet
-  - action: utter_greet
-  - intent: mood_great
-  - action: utter_happy
+  - story: say goodbye
+    steps:
+      - checkpoint: goodbye_checkpoint
+      - action: utter_ask_to_do
+      - intent: goodbye
+      - action: utter_goodbye
 
-- story: sad path 1
-  steps:
-  - intent: greet
-  - action: utter_greet
-  - intent: mood_unhappy
-  - action: utter_cheer_up
-  - action: utter_did_that_help
-  - intent: affirm
-  - action: utter_happy
+  - story: place order with delivery
+    steps:
+      - checkpoint: greet_checkpoint
+      - intent: get_menu
+      - action: action_return_menu
+      - action: utter_ask_to_do
+      - intent: order_food
+      - slot_was_set:
+          - food_items:
+              - Spaghetti carbonara
+              - Tiramisu
+      - action: utter_saving_order
+      - action: action_save_order
+      - active_loop: order_form
+      - slot_was_set:
+          - requested_slot: food_items
+      - active_loop: null
+      - slot_was_set:
+          - requested_slot: null
+      - action: utter_confirm_order
+      - intent: conf_deny
+      - slot_was_set:
+          - order_confirmed: true
+      - action: utter_question_delivery
+      - intent: conf_deny
+      - slot_was_set:
+          - delivery_home: true
+      - action: utter_question_address
+      - intent: give_address
+      - action: utter_confirm_address
+      - intent: conf_deny
+      - slot_was_set:
+          - address_confirmed: true
+      - action: utter_saving_address
+      - action: action_return_order_summary
+      - checkpoint: goodbye_checkpoint
 
-- story: sad path 2
-  steps:
-  - intent: greet
-  - action: utter_greet
-  - intent: mood_unhappy
-  - action: utter_cheer_up
-  - action: utter_did_that_help
-  - intent: deny
-  - action: utter_goodbye
+  - story: ask for opening hours
+    steps:
+      - checkpoint: greet_checkpoint
+      - intent: get_open_hours
+      - action: action_return_week_hours
+      - checkpoint: goodbye_checkpoint
+
+  - story: ask hours and get menu
+    steps:
+      - checkpoint: greet_checkpoint
+      - intent: get_open_hours
+      - action: action_return_week_hours
+      - action: utter_ask_to_do
+      - intent: get_menu
+      - action: action_return_menu
+      - checkpoint: goodbye_checkpoint
+
+  - story: partial menu
+    steps:
+      - checkpoint: greet_checkpoint
+      - intent: get_menu
+      - action: action_return_menu
+      - checkpoint: menu_checkpoint
+
+  - story: oder and not confirm
+    steps:
+      - checkpoint: menu_checkpoint
+      - action: utter_ask_to_do
+      - intent: order_food
+      - slot_was_set:
+          - food_items:
+              - Hot-dog
+              - Burger
+      - action: utter_saving_order
+      - action: action_save_order
+      - active_loop: order_form
+      - slot_was_set:
+          - requested_slot: food_items
+      - active_loop: null
+      - slot_was_set:
+          - requested_slot: null
+      - action: utter_confirm_order
+      - intent: conf_deny
+      - slot_was_set:
+          - order_confirmed: false
+      - checkpoint: goodbye_checkpoint
+
+  - story: order not home delivery
+    steps:
+      - checkpoint: greet_checkpoint
+      - intent: get_menu
+      - action: action_return_menu
+      - action: utter_ask_to_do
+      - intent: order_food
+      - slot_was_set:
+          - food_items:
+              - Lasagne
+              - Pizza
+      - action: utter_saving_order
+      - action: action_save_order
+      - active_loop: order_form
+      - slot_was_set:
+          - requested_slot: food_items
+      - active_loop: null
+      - slot_was_set:
+          - requested_slot: null
+      - action: utter_confirm_order
+      - intent: conf_deny
+      - slot_was_set:
+          - order_confirmed: true
+      - action: utter_question_delivery
+      - intent: conf_deny
+      - slot_was_set:
+          - delivery_home: false
+      - action: action_return_order_summary
+      - checkpoint: goodbye_checkpoint
