@@ -40,16 +40,6 @@ slots:
     mappings:
       - type: from_entity
         entity: address
-  final_price:
-    type: text
-    mappings:
-      - type: custom
-        action: action_save_order
-  when_is_ready:
-    type: text
-    mappings:
-      - type: custom
-        action: action_save_order
   order_confirmed:
     type: bool
     influence_conversation: true

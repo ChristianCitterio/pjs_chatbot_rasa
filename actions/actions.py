@@ -9,9 +9,6 @@ from actions.const import MENU, OPENING_HOURS
 
 class ActionValidateOrder(FormValidationAction):
     
-    total_price: int
-    del_hour: int
-    
     def name(self) -> Text:
         return "action_save_order"
 
@@ -27,21 +24,18 @@ class ActionValidateOrder(FormValidationAction):
         invalid_items = []
         for item in slot_value:
             if item.lower() not in menu_items:
-                invalid_items.append(item)
+                invalid_items.append(item.lower())
             else:
-                valid_items.append(item)
+                valid_items.append(item.lower())
                 
         if invalid_items:
             dispatcher.utter_message(f"{', '.join(invalid_items)} items are not in the menu. Please select from menu.")
            
         if valid_items:
-            self.total_price += (int(item["price"]) for item in MENU)
-            self.del_hour += (int(item["preparation_time"] * 60) for item in MENU) 
             dispatcher.utter_message(f"{', '.join(valid_items)} added to the order.")
-            SlotSet("final_price", str(self.total_price))
-            SlotSet("when_is_ready", str(self.del_hour))
             return {"food_items": valid_items}
 
+        dispatcher.utter_message("Please enter valid items from menu!")
         return {"food_items": None}
 
 
@@ -65,8 +59,6 @@ class ActionShowMenu(Action):
     
 class ActionShowHours(Action):
     
-    day: str = datetime.now().weekday()
-    
     def name(self) -> Text:
         return "action_return_week_hours"
     
@@ -77,37 +69,58 @@ class ActionShowHours(Action):
         domain: DomainDict
     ):
         query_time =  tracker.get_slot("times")
-        query_day = tracker.get_slot("days")
+        query_day: str = tracker.get_slot("days")
+        today =  datetime.now().weekday()
+        today_name = list(OPENING_HOURS.keys())[today]
         
         if not query_time and not query_day:
-            timetable = ',\n'.join(
-                [f"{key}: {value['']}-{value['']}" for key, value in OPENING_HOURS.items()]
-            )
+            timetable = ',\n'.join([
+                * [
+                    f"{key}: {value['open']}-{value['close']}" 
+                    for key, value in OPENING_HOURS.items()
+                    if not value['open'] == value['close'] == 0
+                ],
+                *[
+                   f"{key}: closed" 
+                    for key, value in OPENING_HOURS.items()
+                    if value['open'] == value['close'] == 0 
+                ]   
+            ])
             
             dispatcher.utter_message(f"We are open in the following days: \n{timetable}")
         
         elif query_time and not query_day:
             
             if query_time in ["now", "today"]:
-                _day = OPENING_HOURS.get(OPENING_HOURS.keys()[self.day])
-                dispatcher.utter_message(f"Today we are open from {_day['open']} to {_day['close']}")
-            if query_time == "Tomorrow":
-                _day = ""
-                if self.day < 6:
-                    _day = OPENING_HOURS.get(OPENING_HOURS.keys()[self.day + 1])
+                _day = OPENING_HOURS.get(today_name)
+                print(_day)
+                if _day['open'] == _day['close'] == 0:
+                    dispatcher.utter_message(f"We are sorry but today we are closed.")
                 else:
-                    _day = OPENING_HOURS.get(OPENING_HOURS.keys()[0])
-                
-                dispatcher.utter_message("Tomorrow we are open from {_day['open']} to {_day['close']}")
+                    dispatcher.utter_message(f"Today we are open from {_day['open']} to {_day['close']}")
+            else:
+                today = today +1 if today < 6 else 0
+                today_name = list(OPENING_HOURS.keys())[today]
+                _day = OPENING_HOURS.get(today_name)
+                print(_day)
+                if _day['open'] == _day['close'] == 0:
+                    dispatcher.utter_message(f"We are sorry but today we are closed.")
+                else:
+                    dispatcher.utter_message(f"Tomorrow we are open from {_day['open']} to {_day['close']}")
                 
         elif query_day:
-            _day = OPENING_HOURS.get(query_day)
-            dispatcher.utter_message(f"On {_day}'s we are open from {_day['open']} to {_day['close']}")
+            _day = OPENING_HOURS.get(query_day.capitalize())
+            print(_day)
+            if _day['open'] == _day['close'] == 0:
+                dispatcher.utter_message(f"We are sorry but on {query_day} we are closed.")
+            else:
+                dispatcher.utter_message(f"On {query_day} we are open from {_day['open']} to {_day['close']}")
             
         else:
             dispatcher.utter_message(f"Sorry I didn't understand the question,  could you repeat?")
             
-        return
+        return [ SlotSet("days", None), SlotSet("times", None) ]
+        
 
 
 class ActionOrderSummary(Action):
@@ -115,7 +128,7 @@ class ActionOrderSummary(Action):
     _text: str
     
     def name(self) -> Text:
-        return "action_return_week_hours"
+        return "action_return_order_summary"
     
     def run(
         self,
@@ -123,24 +136,38 @@ class ActionOrderSummary(Action):
         tracker: Tracker,
         domain: DomainDict
     ):
-        total =  tracker.get_slot("final_price")
-        hr_ready = tracker.get_slot("when_is_ready")
+        food_items = tracker.get_slot("food_items")
         delivery_at_house = tracker.get_slot("delivery_home")
-        foods = ',\n'.join(tracker.get_slot("food_items"))
+        foods = ',\n'.join(food_items)
         address = tracker.get_slot("address")
+        total: int = sum([
+            item["price"] 
+            for item in MENU 
+            if item["name"].lower() in food_items
+        ])
+        hr_ready: int = sum([
+            item["preparation_time"] * 60 
+            for item in MENU 
+            if item["name"].lower() in food_items
+        ])
         
         if delivery_at_house:
             dispatcher.utter_message(
                 f"You have ordered: \n{foods} \n "
-                f"the order will be delivered at {hr_ready+30} "
+                f"the order will be delivered in {hr_ready+30} minutes"
                 f"at the address {address}, "
                 f"the total price is €{total}."
             )
         else:
             dispatcher.utter_message(
                 f"You have ordered: \n{foods} \n "
-                f"the order will be ready at {hr_ready+30} "
+                f"the order will be ready in {hr_ready} minutes,"
                 f"the total price is €{total}."
             )
             
-        return
+        return [ 
+            SlotSet("food_items", None),
+            SlotSet("delivery_home", None),
+            SlotSet("address", None),
+            SlotSet("address_confirmed", None),
+        ]

@@ -17,7 +17,7 @@ nlu:
       - saturday
       - sunday
 
-  - lookup: time
+  - lookup: times
     examples: |
       - today
       - now
@@ -65,12 +65,13 @@ nlu:
     examples: |
       - i would like to order some [nuggets](food) and a [pizza](food)
       - I would have some [Lasagne](food) please
-      - i get a [Pasta with mashrooms](food) and a [cocke](food)
+      - i get a [Spaghetti carbonara](food) and a [cocke](food)
       - for me some [fries](food) and some [chips with salt](food) please
       - we would like to order some [sushi](food) and two [beers](food)
-      - i will have myself an [hamburger](food) with some [fries](food) and a [coke](food)
+      - i will have myself an [burger](food) with some [fries](food) and a [coke](food)
       - three [hamburgers](food) please
       - [fish-n-chips](food) and a [coke](food)
+      - [Tiramisu](food) and a [pizza](food)
 
   - intent: get_menu
     examples: |

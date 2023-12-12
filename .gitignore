@@ -2,3 +2,4 @@
 .rasa
 .tar.gz
 /models
+__pycache__

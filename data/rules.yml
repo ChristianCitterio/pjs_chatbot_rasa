@@ -27,3 +27,33 @@ rules:
       - slot_was_set:
           - requested_slot: null
       - action: utter_confirm_order
+
+  - rule: ask for address confirmation after address is given
+    condition:
+      - slot_was_set:
+          - delivery_home: true
+    steps:
+      - intent: give_address
+      - action: utter_confirm_address
+
+  - rule: give summary after address confirmation
+    condition:
+      - slot_was_set:
+          - delivery_home: true
+    steps:
+      - action: utter_confirm_address
+      - intent: conf_deny
+      - slot_was_set:
+          - address_confirmed: true
+      - action: utter_saving_address
+      - action: action_return_order_summary
+      - action: utter_ask_to_do
+
+  - rule: return summary if no delivery_home
+    steps:
+      - action: utter_question_delivery
+      - intent: conf_deny
+      - slot_was_set:
+          - delivery_home: false
+      - action: action_return_order_summary
+      - action: utter_ask_to_do
